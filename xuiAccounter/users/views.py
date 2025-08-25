@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-import re
 from .serializers import UserMetaDataSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+import re
 
-class UserSignUp(APIView):
+class UserRegister(APIView):
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -48,3 +50,22 @@ class UserSignUp(APIView):
         else:
             new_user.delete()
             return Response({"error": "please send all required fields"}, status=400)
+
+class UserLogin(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        if not username or not password:
+            return Response({"error": "please send all required fields"}, status=400)
+
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return Response({"error": "Invalid username or password."}, status=401)
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "info": "loged in successfully.",
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        }, status=200)
