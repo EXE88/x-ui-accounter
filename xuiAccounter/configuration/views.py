@@ -59,8 +59,8 @@ class ConfigurePageView(UserPassesTestMixin, View):
                 config.sni = sni
                 config.inbound = choice
                 config.save()
-            messages.success(request, "تنظیمات با موفقیت ذخیره شد.")
+            messages.success(request, "Settings saved successfully.")
         except Exception as e:
-            messages.error(request, "خطا در ذخیره تنظیمات: {}".format(str(e)))
+            messages.error(request, "Error saving settings: {}".format(str(e)))
 
         return redirect("admin_config")
