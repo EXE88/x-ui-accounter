@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Configure Page</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+            body {
+                font-family: 'Inter', sans-serif;
+                background: linear-gradient(135deg, #e0e7ff 0%, #f5f7fa 100%);
+                min-height: 100vh;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            form {
+                background: #fff;
+                border-radius: 18px;
+                box-shadow: 0 8px 32px rgba(60, 72, 88, 0.18);
+                padding: 2.5rem 2rem;
+                width: 100%;
+                max-width: 420px;
+                animation: fadeInUp 1s cubic-bezier(.68,-0.55,.27,1.55);
+            }
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(40px);}
+                to { opacity: 1; transform: translateY(0);}
+            }
+            .field {
+                margin-bottom: 1.5rem;
+                position: relative;
+            }
+            label {
+                font-weight: 600;
+                color: #374151;
+                margin-bottom: 0.5rem;
+                display: block;
+                letter-spacing: 0.02em;
+                transition: color 0.3s;
+            }
+            input, textarea, select {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                border: 1.5px solid #c7d2fe;
+                border-radius: 10px;
+                background: #f3f4f6;
+                font-size: 1rem;
+                transition: border-color 0.3s, box-shadow 0.3s;
+                outline: none;
+                box-sizing: border-box;
+            }
+            input:focus, textarea:focus, select:focus {
+                border-color: #6366f1;
+                box-shadow: 0 0 0 2px #6366f133;
+            }
+            textarea {
+                min-height: 80px;
+                resize: vertical;
+            }
+            button[type="submit"] {
+                width: 100%;
+                padding: 0.9rem 0;
+                background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+                color: #fff;
+                font-weight: 600;
+                font-size: 1.1rem;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                box-shadow: 0 4px 16px rgba(99,102,241,0.12);
+                transition: background 0.3s, transform 0.2s;
+                letter-spacing: 0.04em;
+            }
+            button[type="submit"]:hover {
+                background: linear-gradient(90deg, #60a5fa 0%, #6366f1 100%);
+                transform: translateY(-2px) scale(1.03);
+            }
+        </style>
+    </head>
+    <body>
+        <form method="post">
+            {% csrf_token %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="margin-bottom:1rem; padding:0.7rem; border-radius:8px;
+                        background:{% if message.tags == 'success' %}#e0ffe0{% else %}#ffe0e0{% endif %};
+                        color:#374151; font-weight:600;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="field">
+                <label for="id_hosts">Hosts : </label><br />
+                    <textarea name="hosts" id="id_hosts">{{ config.hosts|default_if_none:'' }}</textarea>
+            </div>
+
+            <div class="field">
+                <label for="id_port">Port : </label><br />
+                    <input id="id_port" name="port" type="number" value="{{ config.port|default_if_none:'' }}">
+            </div>
+
+            <div class="field">
+                <label for="id_path">Path : </label><br />
+                    <input id="id_path" name="path" type="text" value="{{ config.path|default_if_none:'' }}">
+            </div>
+
+            <div class="field">
+                <label for="id_sni">SNI : </label><br />
+                    <input id="id_sni" name="sni" type="text" value="{{ config.sni|default_if_none:'' }}">
+            </div>
+
+            <div class="field">
+                <label for="id_inbound">choose inbound : </label><br />
+                    <select name="choice" id="id_inbound">
+                        {% for value, label in inbounds %}
+                            <option value="{{ value }}" {% if config and config.inbound == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+            </div>
+
+            <button type="submit">confirm</button>
+        </form>
+    </body>
+</html>
