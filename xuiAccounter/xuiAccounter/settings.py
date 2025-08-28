@@ -4,18 +4,15 @@ import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# بارگذاری env
 env = environ.Env(
     DEBUG=(bool, False)
 )
 environ.Env.read_env(BASE_DIR / ".env")
 
-# امنیت
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
-# اپلیکیشن‌ها
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,7 +54,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'xuiAccounter.wsgi.application'
 
-# دیتابیس
 DATABASES = {
     'default': {
         'ENGINE': env("DB_ENGINE", default="django.db.backends.sqlite3"),
@@ -65,7 +61,6 @@ DATABASES = {
     }
 }
 
-# پسورد
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -81,18 +76,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# زبان و زمان
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# استاتیک
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# REST Framework + JWT
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
