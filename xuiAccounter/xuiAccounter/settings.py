@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users',
     'v2rayconfigcodes',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -101,3 +102,7 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+CRONJOBS = [
+    ('*/5 * * * *', 'v2rayconfigcodes.crons.update_model', '>> /var/xuiAccounter/logs/log.txt 2>&1'),
+]
