@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from .serializers import UserMetaDataSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from coins.models import Coin
 import re
 
 class UserRegister(APIView):
@@ -40,6 +41,8 @@ class UserRegister(APIView):
             if metadata_serializer.is_valid():
                 try:
                     metadata_serializer.save(user=new_user)
+                    init_coins = Coin.objects.create(user=new_user,number_of_coins=0)
+                    init_coins.save()
                     return Response({"info": "account created successfully."}, status=201)
                 except Exception as e:
                     new_user.delete()
