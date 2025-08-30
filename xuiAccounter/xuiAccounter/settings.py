@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'users',
     'v2rayconfigcodes',
     'django_crontab',
+    'coins',
 ]
 
 MIDDLEWARE = [
