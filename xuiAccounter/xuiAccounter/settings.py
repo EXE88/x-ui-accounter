@@ -106,5 +106,13 @@ SIMPLE_JWT = {
 }
 
 CRONJOBS = [
-    ('*/5 * * * *', 'v2rayconfigcodes.crons.update_model', '>> /var/xuiAccounter/logs/log.txt 2>&1'),
+    ('*/5 * * * *', 'v2rayconfigcodes.crons.update_model', '>> /var/xuiAccounter/logs/log_update_globalvariables.txt 2>&1'),
+    ('*/3 * * * *', 'users.crons.cleanup_unverified', '>> /var/xuiAccounter/logs/cleanup_unverified.log 2>&1'),
 ]
+
+UNVERIFIED_EXPIRE_MINUTES = 10
+EMAIL_VERIFICATION_EXPIRE_MINUTES = 1
+EMAIL_RESEND_COOLDOWN_SECONDS = 60 
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "no-reply@yourdomain.com"
