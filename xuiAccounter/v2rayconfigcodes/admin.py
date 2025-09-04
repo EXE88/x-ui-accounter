@@ -26,12 +26,22 @@ class ConfigCodeAdmin(admin.ModelAdmin):
     
     def total_gb_display(self, obj):
         return f"{obj.total_gb / (1024 ** 3):.2f} GB"
-    total_gb_display.short_description = 'Total GB'
+    total_gb_display.short_description = 'Total GB Left'
 
     def expiry_days(self, obj):
-        days_left = obj.expiry_time // (24 * 3600)
+        if not obj.expiry_time:
+            return "N/A"
+        
+        now_ms = int(datetime.now().timestamp() * 1000)
+        diff_ms = obj.expiry_time - now_ms
+
+        if diff_ms <= 0:
+            return "Expired"
+
+        days_left = diff_ms // (1000 * 60 * 60 * 24)
         return f"{days_left} days"
-    expiry_days.short_description = 'Expiry'
+        
+    expiry_days.short_description = 'Expiry In'
 
 @admin.register(GlobalVariables)
 class GlobalVariablesAdmin(admin.ModelAdmin):
