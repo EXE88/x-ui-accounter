@@ -1,6 +1,7 @@
 # users/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from .serializers import UserMetaDataSerializer
 from coins.models import Coin
@@ -12,6 +13,7 @@ from datetime import timedelta
 import random
 import re
 from django.core.mail import send_mail
+from v2rayconfigcodes.models import ConfigCode ,GlobalVariables
 
 UNVERIFIED_EXPIRE_MINUTES = getattr(settings, "UNVERIFIED_EXPIRE_MINUTES", 10)
 EMAIL_VERIFICATION_EXPIRE_MINUTES = getattr(settings, "EMAIL_VERIFICATION_EXPIRE_MINUTES", 10)
@@ -172,3 +174,34 @@ class ResendVerificationView(APIView):
         ev.save()
         SendCode.send_verification_email(email, code)
         return Response({"info": "New verification code sent."}, status=200)
+
+class UserStatus(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"error": "Authentication required."}, status=401)
+
+        try:
+            meta = UserMetaData.objects.get(user=user)
+            email = meta.email
+        except UserMetaData.DoesNotExist:
+            email = None
+
+        coin = Coin.objects.filter(user=user).first()
+        coin_count = coin.number_of_coins
+
+        config_codes = ConfigCode.objects.filter(user=user)
+        global_variables = GlobalVariables.objects.all().first()
+        config_codes_list = []
+        for config_code in config_codes:
+            config = f"vless://{config_code.client_id}@{global_variables.panel_address}:{global_variables.x_ui_listen_port}?type=tcp#Iran-{config_code.email}"
+            config_codes_list.append(config)
+
+        return Response({
+            "username": user.username,
+            "email": email,
+            "coin_count": coin_count,
+            "config_codes": config_codes_list,
+        }, status=200)
