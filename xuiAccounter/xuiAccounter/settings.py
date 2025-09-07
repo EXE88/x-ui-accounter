@@ -106,8 +106,9 @@ SIMPLE_JWT = {
 }
 
 CRONJOBS = [
-    ('*/5 * * * *', 'v2rayconfigcodes.crons.update_model', '>> /var/xuiAccounter/logs/log_update_globalvariables.txt 2>&1'),
+    ('*/5 * * * *', 'v2rayconfigcodes.crons.update_globalvariables', '>> /var/xuiAccounter/logs/update_globalvariables.log 2>&1'),
     ('*/3 * * * *', 'users.crons.cleanup_unverified', '>> /var/xuiAccounter/logs/cleanup_unverified.log 2>&1'),
+    ('0 * * * *', 'v2rayconfigcodes.crons.update_configs_status', '>> /var/xuiAccounter/logs/update_configs_status.log 2>&1')
 ]
 
 UNVERIFIED_EXPIRE_MINUTES = 10
