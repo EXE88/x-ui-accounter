@@ -14,6 +14,7 @@ import random
 import re
 from django.core.mail import send_mail
 from v2rayconfigcodes.models import ConfigCode ,GlobalVariables
+from datetime import datetime
 
 UNVERIFIED_EXPIRE_MINUTES = getattr(settings, "UNVERIFIED_EXPIRE_MINUTES", 10)
 EMAIL_VERIFICATION_EXPIRE_MINUTES = getattr(settings, "EMAIL_VERIFICATION_EXPIRE_MINUTES", 10)
@@ -188,20 +189,49 @@ class UserStatus(APIView):
             email = meta.email
         except UserMetaData.DoesNotExist:
             email = None
-
-        coin = Coin.objects.filter(user=user).first()
-        coin_count = coin.number_of_coins
-
+        
         config_codes = ConfigCode.objects.filter(user=user)
+        coin = Coin.objects.filter(user=user).first()
         global_variables = GlobalVariables.objects.all().first()
+
+        if not global_variables:
+            return Response({"error": "Global variables not configured."}, status=500)
+        
         config_codes_list = []
+
         for config_code in config_codes:
-            config = f"vless://{config_code.client_id}@{global_variables.panel_address}:{global_variables.x_ui_listen_port}?type=tcp#Iran-{config_code.email}"
-            config_codes_list.append(config)
+            expiry_time = getattr(config_code, "expiry_time", None)
+            total_gb_val = getattr(config_code, "total_gb", 0)
+            email_val = getattr(config_code, "email", "")
+            client_id_val = getattr(config_code, "client_id", "")
+
+            config = f"vless://{client_id_val}@{global_variables.panel_address}:{global_variables.x_ui_listen_port}?type=tcp#Iran-{email_val}"
+            try:
+                total_gb = f"{float(total_gb_val) / (1024 ** 3):.2f}"
+            except Exception:
+                total_gb = "0.00"
+
+            days_left = None
+            if expiry_time:
+                now_ms = int(datetime.now().timestamp() * 1000)
+                diff_ms = expiry_time - now_ms
+                days_left = diff_ms // (1000 * 60 * 60 * 24)
+            else:
+                days_left = "N/A"
+
+            config_codes_list.append(
+                {
+                    "config_code": config,
+                    "gb_left": total_gb,
+                    "days_left": days_left
+                }
+            )
+
+        coin_count_val = getattr(coin, "number_of_coins", 0) if coin else 0
 
         return Response({
             "username": user.username,
             "email": email,
-            "coin_count": coin_count,
+            "coin_count": coin_count_val,
             "config_codes": config_codes_list,
         }, status=200)
